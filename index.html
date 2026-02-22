@@ -25,19 +25,40 @@
                     <h1 class="title is-4 has-text-white">🛠️ บันทึกการจัดเตรียม Kit</h1>
                 </div>
                 <div class="card-content">
+                    
                     <div class="field">
                         <label class="label">จำนวนที่จัดเตรียม (กล่อง)</label>
                         <input class="input" type="number" id="kitCount" min="1" value="1">
                     </div>
 
-                    <div class="columns is-mobile">
-                        <div class="column">
+                    <div class="columns is-mobile is-multiline">
+                        <div class="column is-12-mobile is-6-tablet">
                             <label class="label">ผู้จัดเตรียม (ผู้ช่วยฯ)</label>
-                            <input class="input" type="text" id="assistant" placeholder="ชื่อ">
+                            <div class="select is-fullwidth">
+                                <select id="assistant">
+                                    <option value="">-- เลือกรายชื่อ --</option>
+                                    <option value="อุดมลักษณ์">อุดมลักษณ์</option>
+                                    <option value="ธนัญญา">ธนัญญา</option>
+                                    <option value="หัทยา">หัทยา</option>
+                                    <option value="พนิตนันท์">พนิตนันท์</option>
+                                    <option value="ชนพัฒน์">ชนพัฒน์</option>
+                                </select>
+                            </div>
                         </div>
-                        <div class="column">
+                        <div class="column is-12-mobile is-6-tablet">
                             <label class="label">เภสัชกรผู้ตรวจสอบ</label>
-                            <input class="input" type="text" id="pharmacist" placeholder="ชื่อ">
+                            <div class="select is-fullwidth">
+                                <select id="pharmacist">
+                                    <option value="">-- เลือกรายชื่อ --</option>
+                                    <option value="ภญ.บุษบา">ภญ.บุษบา</option>
+                                    <option value="ภญ.จรสกมล">ภญ.จรสกมล</option>
+                                    <option value="ภญ.พัทธ์ปิยา">ภญ.พัทธ์ปิยา</option>
+                                    <option value="ภญ.ชามา">ภญ.ชามา</option>
+                                    <option value="ภญ.จุฑาพร">ภญ.จุฑาพร</option>
+                                    <option value="ภญ.วณิชา">ภญ.วณิชา</option>
+                                    <option value="ภญ.อุทัยวรรณ">ภญ.อุทัยวรรณ</option>
+                                </select>
+                            </div>
                         </div>
                     </div>
 
@@ -88,9 +109,8 @@
                         <label class="label">สถานที่เก็บสำรอง</label>
                         <div class="select is-fullwidth">
                             <select id="storage">
-                                <option value="คลังยา">คลังยา</option>
-                                <option value="ห้องผสมยา">ห้องผสมยา</option>
-                                <option value="ตู้เย็น">ตู้เย็น</option>
+                                <option value="ห้องยา นม.คณ.4">ห้องยา นม.คณ.4</option>
+                                <option value="ห้องยา ภส บี 1">ห้องยา ภส บี 1</option>
                             </select>
                         </div>
                     </div>
@@ -104,7 +124,6 @@
     </section>
 
     <script>
-        // 🚩 เปลี่ยนเป็น LIFF ID ของคุณ
         const LIFF_ID = "2009195357-6v2tIVUM"; 
 
         async function initLIFF() {
@@ -115,20 +134,14 @@
         }
         initLIFF();
 
-        /** 🔍 คำนวณวันหมดอายุที่น้อยที่สุดจากยาทั้ง 4 ตัว */
         function calculateKitExpiry() {
             const dates = [];
             for (let i = 1; i <= 4; i++) {
                 const val = document.getElementById('exp' + i).value;
                 if (val) dates.push(new Date(val));
             }
-            
             const display = document.getElementById('kitExpiryDisplay');
-            if (dates.length === 0) {
-                display.innerText = "-";
-                return;
-            }
-
+            if (dates.length === 0) { display.innerText = "-"; return; }
             const minDate = new Date(Math.min(...dates));
             const options = { year: 'numeric', month: 'long', day: 'numeric' };
             display.innerText = minDate.toLocaleDateString('th-TH', options);
@@ -143,31 +156,24 @@
                 storage: document.getElementById('storage').value
             };
 
-            // รวบรวมข้อมูลยา 4 ตัว
             const items = [];
             for (let i = 1; i <= 4; i++) {
                 const lot = document.getElementById('lot' + i).value || "-";
                 const exp = document.getElementById('exp' + i).value;
-                if (!exp) {
-                    alert(`⚠️ กรุณาระบุวันหมดอายุของยาตัวที่ ${i}`);
-                    return;
-                }
+                if (!exp) { alert(`⚠️ กรุณาระบุวันหมดอายุของยาตัวที่ ${i}`); return; }
                 items.push(lot, exp);
             }
 
             if (!fields.assistant || !fields.pharmacist) {
-                alert("⚠️ กรุณากรอกชื่อผู้รับผิดชอบให้ครบถ้วน");
+                alert("⚠️ กรุณาเลือกรายชื่อผู้จัดเตรียมและเภสัชกรผู้ตรวจสอบ");
                 return;
             }
 
             if (confirm(`ยืนยันการจัดเตรียม Kit จำนวน ${fields.count} กล่อง?\nระบบจะรันเลข ID ให้อัตโนมัติหลังกดตกลง`)) {
                 btn.disabled = true;
                 btn.classList.add('is-loading');
-
                 try {
-                    // รูปแบบ: PREP_KIT_LIFF | count | assist | pharma | lot1 | exp1 | lot2 | exp2 | lot3 | exp3 | lot4 | exp4 | storage
                     const msg = `PREP_KIT_LIFF|${fields.count}|${fields.assistant}|${fields.pharmacist}|${items.join('|')}|${fields.storage}`;
-                    
                     await liff.sendMessages([{ "type": "text", "text": msg }]);
                     liff.closeWindow();
                 } catch (err) {
