@@ -12,7 +12,9 @@
         .card { border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
         .header-box { background-color: #015958; color: white; padding: 20px; border-radius: 15px 15px 0 0; text-align: center; }
         .expiry-highlight { background-color: #FFF4E5; border: 2px dashed #FF9F00; padding: 10px; border-radius: 10px; text-align: center; margin: 15px 0; }
-        .label { color: #015958; }
+        .label { color: #015958; margin-bottom: 0.2rem; }
+        .drug-row { padding: 10px 0; border-bottom: 1px solid #eee; }
+        .drug-row:last-child { border-bottom: none; }
     </style>
 </head>
 <body>
@@ -23,41 +25,62 @@
                     <h1 class="title is-4 has-text-white">🛠️ บันทึกการจัดเตรียม Kit</h1>
                 </div>
                 <div class="card-content">
-                    <div class="columns">
+                    <div class="field">
+                        <label class="label">จำนวนที่จัดเตรียม (กล่อง)</label>
+                        <input class="input" type="number" id="kitCount" min="1" value="1">
+                    </div>
+
+                    <div class="columns is-mobile">
                         <div class="column">
-                            <label class="label">จำนวนที่จัดเตรียม (กล่อง)</label>
-                            <input class="input" type="number" id="kitCount" placeholder="เช่น 5" min="1" value="1">
+                            <label class="label">ผู้จัดเตรียม (ผู้ช่วยฯ)</label>
+                            <input class="input" type="text" id="assistant" placeholder="ชื่อ">
                         </div>
-                    </div>
-
-                    <div class="field">
-                        <label class="label">ผู้จัดเตรียม (ผู้ช่วยเภสัชกร)</label>
-                        <input class="input" type="text" id="assistant" placeholder="ระบุชื่อผู้จัดเตรียม">
-                    </div>
-
-                    <div class="field">
-                        <label class="label">เภสัชกรผู้ตรวจสอบ</label>
-                        <input class="input" type="text" id="pharmacist" placeholder="ระบุชื่อเภสัชกร">
+                        <div class="column">
+                            <label class="label">เภสัชกรผู้ตรวจสอบ</label>
+                            <input class="input" type="text" id="pharmacist" placeholder="ชื่อ">
+                        </div>
                     </div>
 
                     <hr>
 
-                    <div class="box" style="background-color: #f9f9f9;">
-                        <p class="subtitle is-6 has-text-weight-bold">💊 ยา 1: DMSO</p>
-                        <div class="columns is-mobile">
-                            <div class="column"><input class="input" id="lot1" placeholder="LOT"></div>
-                            <div class="column"><input class="input" type="date" id="exp1" onchange="calculateKitExpiry()"></div>
+                    <div class="box" style="background-color: #fafafa;">
+                        <p class="subtitle is-6 has-text-weight-bold has-text-primary">💊 รายละเอียดล็อตและวันหมดอายุ</p>
+                        
+                        <div class="drug-row">
+                            <p class="is-size-7 has-text-weight-bold">1. DMSO</p>
+                            <div class="columns is-mobile">
+                                <div class="column"><input class="input is-small" id="lot1" placeholder="LOT"></div>
+                                <div class="column"><input class="input is-small" type="date" id="exp1" onchange="calculateKitExpiry()"></div>
+                            </div>
                         </div>
 
-                        <p class="subtitle is-6 has-text-weight-bold">💊 ยา 2: 1% Hydrocortisone Cream</p>
-                        <div class="columns is-mobile">
-                            <div class="column"><input class="input" id="lot2" placeholder="LOT"></div>
-                            <div class="column"><input class="input" type="date" id="exp2" onchange="calculateKitExpiry()"></div>
+                        <div class="drug-row">
+                            <p class="is-size-7 has-text-weight-bold">2. 1% Hydrocortisone Cream</p>
+                            <div class="columns is-mobile">
+                                <div class="column"><input class="input is-small" id="lot2" placeholder="LOT"></div>
+                                <div class="column"><input class="input is-small" type="date" id="exp2" onchange="calculateKitExpiry()"></div>
+                            </div>
+                        </div>
+
+                        <div class="drug-row">
+                            <p class="is-size-7 has-text-weight-bold">3. 70% Alcohol 60 mL</p>
+                            <div class="columns is-mobile">
+                                <div class="column"><input class="input is-small" id="lot3" placeholder="LOT"></div>
+                                <div class="column"><input class="input is-small" type="date" id="exp3" onchange="calculateKitExpiry()"></div>
+                            </div>
+                        </div>
+
+                        <div class="drug-row">
+                            <p class="is-size-7 has-text-weight-bold">4. SWI 10 mL</p>
+                            <div class="columns is-mobile">
+                                <div class="column"><input class="input is-small" id="lot4" placeholder="LOT"></div>
+                                <div class="column"><input class="input is-small" type="date" id="exp4" onchange="calculateKitExpiry()"></div>
+                            </div>
                         </div>
                     </div>
 
                     <div class="expiry-highlight">
-                        <p class="is-size-7">วันหมดอายุของ Kit (ยึดตามตัวที่หมดอายุเร็วสุด)</p>
+                        <p class="is-size-7">วันหมดอายุของ Kit (FEFO)</p>
                         <p class="title is-4 has-text-danger" id="kitExpiryDisplay">-</p>
                     </div>
 
@@ -73,7 +96,7 @@
                     </div>
 
                     <button class="button is-primary is-fullwidth is-large mt-5" id="btnSubmit" onclick="confirmAndSubmit()">
-                        🚀 ยืนยันข้อมูลและสร้างเลข ID
+                        🚀 ยืนยันข้อมูลและสร้าง ID
                     </button>
                 </div>
             </div>
@@ -81,65 +104,70 @@
     </section>
 
     <script>
-        // 🚩 ใส่ LIFF ID ของคุณที่นี่
+        // 🚩 เปลี่ยนเป็น LIFF ID ของคุณ
         const LIFF_ID = "2009195357-6v2tIVUM"; 
 
         async function initLIFF() {
             try {
                 await liff.init({ liffId: LIFF_ID });
                 if (!liff.isLoggedIn()) liff.login();
-            } catch (err) { console.error("LIFF Init Error", err); }
+            } catch (err) { console.error("LIFF Error", err); }
         }
         initLIFF();
 
-        /** 🔍 คำนวณวันหมดอายุที่น้อยที่สุด (FEFO) บนหน้าจอ */
+        /** 🔍 คำนวณวันหมดอายุที่น้อยที่สุดจากยาทั้ง 4 ตัว */
         function calculateKitExpiry() {
-            const exp1 = document.getElementById('exp1').value;
-            const exp2 = document.getElementById('exp2').value;
-            const display = document.getElementById('kitExpiryDisplay');
-
-            if (!exp1 && !exp2) {
-                display.innerText = "-";
-                return null;
-            }
-
             const dates = [];
-            if (exp1) dates.push(new Date(exp1));
-            if (exp2) dates.push(new Date(exp2));
+            for (let i = 1; i <= 4; i++) {
+                const val = document.getElementById('exp' + i).value;
+                if (val) dates.push(new Date(val));
+            }
+            
+            const display = document.getElementById('kitExpiryDisplay');
+            if (dates.length === 0) {
+                display.innerText = "-";
+                return;
+            }
 
             const minDate = new Date(Math.min(...dates));
             const options = { year: 'numeric', month: 'long', day: 'numeric' };
             display.innerText = minDate.toLocaleDateString('th-TH', options);
-            return minDate;
         }
 
         async function confirmAndSubmit() {
             const btn = document.getElementById('btnSubmit');
-            const data = {
+            const fields = {
                 count: document.getElementById('kitCount').value,
                 assistant: document.getElementById('assistant').value,
                 pharmacist: document.getElementById('pharmacist').value,
-                lot1: document.getElementById('lot1').value,
-                exp1: document.getElementById('exp1').value,
-                lot2: document.getElementById('lot2').value,
-                exp2: document.getElementById('exp2').value,
                 storage: document.getElementById('storage').value
             };
 
-            // ตรวจสอบความครบถ้วน
-            if (!data.assistant || !data.pharmacist || !data.exp1 || !data.exp2) {
-                alert("⚠️ กรุณากรอกชื่อผู้รับผิดชอบและวันหมดอายุให้ครบถ้วนครับ");
+            // รวบรวมข้อมูลยา 4 ตัว
+            const items = [];
+            for (let i = 1; i <= 4; i++) {
+                const lot = document.getElementById('lot' + i).value || "-";
+                const exp = document.getElementById('exp' + i).value;
+                if (!exp) {
+                    alert(`⚠️ กรุณาระบุวันหมดอายุของยาตัวที่ ${i}`);
+                    return;
+                }
+                items.push(lot, exp);
+            }
+
+            if (!fields.assistant || !fields.pharmacist) {
+                alert("⚠️ กรุณากรอกชื่อผู้รับผิดชอบให้ครบถ้วน");
                 return;
             }
 
-            if (confirm(`ยืนยันการจัดเตรียม Kit จำนวน ${data.count} กล่อง?\nระบบจะรันเลข ID และสร้าง QR Code ให้ทันทีหลังกดตกลง`)) {
+            if (confirm(`ยืนยันการจัดเตรียม Kit จำนวน ${fields.count} กล่อง?\nระบบจะรันเลข ID ให้อัตโนมัติหลังกดตกลง`)) {
                 btn.disabled = true;
                 btn.classList.add('is-loading');
-                btn.innerText = "กำลังบันทึกและรันเลข ID...";
 
                 try {
-                    // ส่งข้อมูลรูปแบบ String ไปให้ GAS ประมวลผลรันเลข ID ต่อ
-                    const msg = `PREP_KIT_LIFF|${data.count}|${data.assistant}|${data.pharmacist}|${data.lot1}|${data.exp1}|${data.lot2}|${data.exp2}|${data.storage}`;
+                    // รูปแบบ: PREP_KIT_LIFF | count | assist | pharma | lot1 | exp1 | lot2 | exp2 | lot3 | exp3 | lot4 | exp4 | storage
+                    const msg = `PREP_KIT_LIFF|${fields.count}|${fields.assistant}|${fields.pharmacist}|${items.join('|')}|${fields.storage}`;
+                    
                     await liff.sendMessages([{ "type": "text", "text": msg }]);
                     liff.closeWindow();
                 } catch (err) {
