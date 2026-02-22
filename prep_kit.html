@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>จัดเตรียม Kit ใหม่ - PharmaKit</title>
+    <script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;500&display=swap" rel="stylesheet">
+    <style>
+        body { background-color: #F0F4F3; font-family: 'Kanit', sans-serif; }
+        .card { border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .header-box { background-color: #015958; color: white; padding: 20px; border-radius: 15px 15px 0 0; text-align: center; }
+        .expiry-highlight { background-color: #FFF4E5; border: 2px dashed #FF9F00; padding: 10px; border-radius: 10px; text-align: center; margin: 15px 0; }
+        .label { color: #015958; }
+    </style>
+</head>
+<body>
+    <section class="section">
+        <div class="container">
+            <div class="card">
+                <div class="header-box">
+                    <h1 class="title is-4 has-text-white">🛠️ บันทึกการจัดเตรียม Kit</h1>
+                </div>
+                <div class="card-content">
+                    <div class="columns">
+                        <div class="column">
+                            <label class="label">จำนวนที่จัดเตรียม (กล่อง)</label>
+                            <input class="input" type="number" id="kitCount" placeholder="เช่น 5" min="1" value="1">
+                        </div>
+                    </div>
+
+                    <div class="field">
+                        <label class="label">ผู้จัดเตรียม (ผู้ช่วยเภสัชกร)</label>
+                        <input class="input" type="text" id="assistant" placeholder="ระบุชื่อผู้จัดเตรียม">
+                    </div>
+
+                    <div class="field">
+                        <label class="label">เภสัชกรผู้ตรวจสอบ</label>
+                        <input class="input" type="text" id="pharmacist" placeholder="ระบุชื่อเภสัชกร">
+                    </div>
+
+                    <hr>
+
+                    <div class="box" style="background-color: #f9f9f9;">
+                        <p class="subtitle is-6 has-text-weight-bold">💊 ยา 1: DMSO</p>
+                        <div class="columns is-mobile">
+                            <div class="column"><input class="input" id="lot1" placeholder="LOT"></div>
+                            <div class="column"><input class="input" type="date" id="exp1" onchange="calculateKitExpiry()"></div>
+                        </div>
+
+                        <p class="subtitle is-6 has-text-weight-bold">💊 ยา 2: 1% Hydrocortisone Cream</p>
+                        <div class="columns is-mobile">
+                            <div class="column"><input class="input" id="lot2" placeholder="LOT"></div>
+                            <div class="column"><input class="input" type="date" id="exp2" onchange="calculateKitExpiry()"></div>
+                        </div>
+                    </div>
+
+                    <div class="expiry-highlight">
+                        <p class="is-size-7">วันหมดอายุของ Kit (ยึดตามตัวที่หมดอายุเร็วสุด)</p>
+                        <p class="title is-4 has-text-danger" id="kitExpiryDisplay">-</p>
+                    </div>
+
+                    <div class="field">
+                        <label class="label">สถานที่เก็บสำรอง</label>
+                        <div class="select is-fullwidth">
+                            <select id="storage">
+                                <option value="คลังยา">คลังยา</option>
+                                <option value="ห้องผสมยา">ห้องผสมยา</option>
+                                <option value="ตู้เย็น">ตู้เย็น</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <button class="button is-primary is-fullwidth is-large mt-5" id="btnSubmit" onclick="confirmAndSubmit()">
+                        🚀 ยืนยันข้อมูลและสร้างเลข ID
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        // 🚩 ใส่ LIFF ID ของคุณที่นี่
+        const LIFF_ID = "2009181600-gwOEGw9p"; 
+
+        async function initLIFF() {
+            try {
+                await liff.init({ liffId: LIFF_ID });
+                if (!liff.isLoggedIn()) liff.login();
+            } catch (err) { console.error("LIFF Init Error", err); }
+        }
+        initLIFF();
+
+        /** 🔍 คำนวณวันหมดอายุที่น้อยที่สุด (FEFO) บนหน้าจอ */
+        function calculateKitExpiry() {
+            const exp1 = document.getElementById('exp1').value;
+            const exp2 = document.getElementById('exp2').value;
+            const display = document.getElementById('kitExpiryDisplay');
+
+            if (!exp1 && !exp2) {
+                display.innerText = "-";
+                return null;
+            }
+
+            const dates = [];
+            if (exp1) dates.push(new Date(exp1));
+            if (exp2) dates.push(new Date(exp2));
+
+            const minDate = new Date(Math.min(...dates));
+            const options = { year: 'numeric', month: 'long', day: 'numeric' };
+            display.innerText = minDate.toLocaleDateString('th-TH', options);
+            return minDate;
+        }
+
+        async function confirmAndSubmit() {
+            const btn = document.getElementById('btnSubmit');
+            const data = {
+                count: document.getElementById('kitCount').value,
+                assistant: document.getElementById('assistant').value,
+                pharmacist: document.getElementById('pharmacist').value,
+                lot1: document.getElementById('lot1').value,
+                exp1: document.getElementById('exp1').value,
+                lot2: document.getElementById('lot2').value,
+                exp2: document.getElementById('exp2').value,
+                storage: document.getElementById('storage').value
+            };
+
+            // ตรวจสอบความครบถ้วน
+            if (!data.assistant || !data.pharmacist || !data.exp1 || !data.exp2) {
+                alert("⚠️ กรุณากรอกชื่อผู้รับผิดชอบและวันหมดอายุให้ครบถ้วนครับ");
+                return;
+            }
+
+            if (confirm(`ยืนยันการจัดเตรียม Kit จำนวน ${data.count} กล่อง?\nระบบจะรันเลข ID และสร้าง QR Code ให้ทันทีหลังกดตกลง`)) {
+                btn.disabled = true;
+                btn.classList.add('is-loading');
+                btn.innerText = "กำลังบันทึกและรันเลข ID...";
+
+                try {
+                    // ส่งข้อมูลรูปแบบ String ไปให้ GAS ประมวลผลรันเลข ID ต่อ
+                    const msg = `PREP_KIT_LIFF|${data.count}|${data.assistant}|${data.pharmacist}|${data.lot1}|${data.exp1}|${data.lot2}|${data.exp2}|${data.storage}`;
+                    await liff.sendMessages([{ "type": "text", "text": msg }]);
+                    liff.closeWindow();
+                } catch (err) {
+                    btn.disabled = false;
+                    btn.classList.remove('is-loading');
+                    alert("❌ Error: " + err.message);
+                }
+            }
+        }
+    </script>
+</body>
+</html>
